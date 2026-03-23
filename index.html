@@ -1,135 +1,191 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BUSCADOR CIMAC</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
     <style>
-        :root { --primary: #6c5ce7; --bg: #0f0f12; --card: #1c1c21; --text: #f0f0f5; --accent: #a29bfe; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; }
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at top right, #2d3436, var(--bg)); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .login-card { background: rgba(28, 28, 33, 0.8); backdrop-filter: blur(15px); padding: 40px; border-radius: 24px; width: 90%; max-width: 380px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .login-card img, header img { max-width: 260px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(108, 92, 231, 0.3)); }
-        input { width: 100%; padding: 14px; margin: 12px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 10px; font-size: 16px; }
-        #app-screen { display: none; padding: 20px; max-width: 600px; margin: 0 auto; box-sizing: border-box; }
-        header { text-align: center; padding: 20px 0; }
-        header h1 { font-size: 1.3rem; letter-spacing: 5px; color: var(--accent); margin-top: 10px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 15px; font-weight: 600; }
-        .search-area { position: sticky; top: 0; z-index: 100; padding: 15px 0; background: var(--bg); }
-        .result-card { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 20px; border-left: 5px solid var(--primary); box-shadow: 0 8px 25px rgba(0,0,0,0.3); animation: fadeInUp 0.3s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 4px; display: block; }
-        .value { font-size: 17px; font-weight: 400; color: #fff; margin-bottom: 12px; }
-        .value.mono { font-family: 'Courier New', Courier, monospace; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; display: inline-block; width: 100%; box-sizing: border-box; }
-        .loader { display: none; text-align: center; color: var(--accent); margin: 40px 0; font-size: 14px; }
-        .empty-state { text-align: center; color: #444; margin-top: 60px; font-size: 14px; }
-        #logout-btn { background: transparent; color: #444; border: 1px solid #222; font-size: 11px; padding: 6px 12px; margin-top: 50px; cursor: pointer; width: auto; border-radius: 20px; }
+        :root {
+            --primary: #6c5ce7;
+            --bg: #0f0f12;
+            --card: #1c1c21;
+            --text: #f0f0f5;
+            --accent: #00d2d3;
+            --purple: #a29bfe;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f0f12;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-card {
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            margin: 10px 0;
+            background: #1a1a1a;
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button#login-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #app-screen {
+            display: none;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .logo-main {
+            width: 160px;
+            margin-bottom: 5px;
+        }
+
+        header h1 {
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            color: var(--purple);
+            margin: 10px 0;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #222;
+            margin-bottom: 30px;
+        }
+
+        .search-area {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 10px 0;
+            background: var(--bg);
+        }
+
+        #searchInput {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(108, 92, 231, 0.2);
+        }
+
+        .result-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .val-u {
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .val-i {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1dd1a1;
+            margin-bottom: 18px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .val-normal {
+            font-size: 16px;
+            color: #eee;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #444;
+            margin-top: 50px;
+        }
+
+        #logout-link {
+            display: block;
+            text-align: center;
+            color: #333;
+            font-size: 10px;
+            margin-top: 40px;
+            cursor: pointer;
+            text-decoration: none;
+        }
     </style>
 </head>
+
 <body>
+
     <div id="login-screen">
         <div class="login-card">
-            <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Logo">
-            <input type="text" id="email" placeholder="Usuario">
-            <input type="password" id="password" placeholder="Contraseña">
-            <button onclick="handleLogin()">INGRESAR AL SISTEMA</button>
-            <div id="error-msg" style="color:#ff7675; margin-top:10px; display:none;">Credenciales incorrectas</div>
-        </div>
-    </div>
-
-    <div id="app-screen">
-        <header>
-            <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Logo">
-            <h1>BUSCADOR CIMAC</h1>
-        </header>
-        <div class="search-area">
-            <input type="text" id="searchInput" placeholder="Escribe MAC, IP o Equipo..." onkeyup="filterData()">
-        </div>
-        <div id="loader" class="loader">CONECTANDO CON DATA CENTER...</div>
-        <div id="results"><div class="empty-state">Listo para rastrear...</div></div>
-        <div style="text-align: center;"><button id="logout-btn" onclick="logout()">CERRAR SESIÓN</button></div>
-    </div>
-
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxHzTfBLPL4p9CKl-TfNYRibayPQBgaBW0N9ApUCn5UTGyMjwNApkYvLeklfjVONF8e/exec";
-        let inventoryData = [];
-
-        window.onload = () => { if (localStorage.getItem('cimac_session_active')) showApp(); };
-
-        async function handleLogin() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            try {
-                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "login", email, password }) });
-                const res = await resp.json();
-                if (res.status === "success") { localStorage.setItem('cimac_session_active', 'true'); showApp(); }
-                else { document.getElementById('error-msg').style.display = 'block'; }
-            } catch (e) { alert("Error de conexión"); }
-        }
-
-        function showApp() {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'block';
-            fetchData();
-        }
-
-        async function fetchData() {
-            document.getElementById('loader').style.display = 'block';
-            try {
-                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getData" }) });
-                const result = await response.json();
-                inventoryData = result.data;
-            } catch (e) { console.error(e); }
-            finally { document.getElementById('loader').style.display = 'none'; }
-        }
-
-        function renderResults(data) {
-            const container = document.getElementById('results');
-            const searchVal = document.getElementById('searchInput').value.trim();
-            if (searchVal === "" || data.length === 0) {
-                container.innerHTML = '<div class="empty-state">Ingresa un parámetro para buscar...</div>';
-                return;
-            }
-            container.innerHTML = "";
-            
-            data.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'result-card';
-
-                // BUSQUEDA DINÁMICA DE COLUMNAS (Para SW y PP)
-                let swVal = "-";
-                let ppVal = "-";
-                for (let key in item) {
-                    if (key.startsWith("sw")) swVal = item[key];
-                    if (key.startsWith("pp")) ppVal = item[key];
-                }
-
-                const userVal = item['usuario'] || item['USUARIO'] || 'N/A';
-                const posVal = item['puesto'] || item['PUESTO'] || '';
-                const macVal = item['mac'] || item['MAC'] || '-';
-                const ipVal = item['ip'] || item['IP'] || '-';
-
-                card.innerHTML = `
-                    <div class="field"><span class="label">SWITCH / PUERTO</span><div class="value">${swVal} —— ${ppVal}</div></div>
-                    <div class="field"><span class="label">EQUIPO / USUARIO / PUESTO</span><div class="value">${userVal} ${posVal ? '['+posVal+']' : ''}</div></div>
-                    <div class="field"><span class="label">DIRECCIÓN MAC</span><div class="value mono">${macVal}</div></div>
-                    <div class="field"><span class="label">DIRECCIÓN IP</span><div class="value mono" style="color:var(--accent)">${ipVal}</div></div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function filterData() {
-            const term = document.getElementById('searchInput').value.toLowerCase().trim();
-            if (term === "") { renderResults([]); return; }
-            const filtered = inventoryData.filter(i => 
-                Object.values(i).some(v => String(v).toLowerCase().includes(term))
-            );
-            renderResults(filtered);
-        }
-
-        function logout() { localStorage.removeItem('cimac_session_active'); location.reload(); }
-    </script>
-</body>
-</html>
+            <!-- LOGO INTEGRADO EN BASE64 -->
+            <img class="logo-main" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAADdcAAAJPCAYAAAAkQwy1AAAACXBIWXMAAC4jAAAuIwF4pT92AAAgAElEQVR4Xuzde5BV9Z0g8Is8RUBBVIgSHyOJ3kaTSNZoJpvuTHaTmi0n86idJFOZqd1s1U5NlVvzz/yzu1Vb5f6T3X+mdjeZziSTSaLjg8A4aosoogIdFQTl3d0g4gNounn3k6bp193fj3ATNCD07fs4597PsW41Def8Hp/f+d177vH3Pd9MxkaAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAA
