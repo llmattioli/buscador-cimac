@@ -66,7 +66,7 @@
             outline: none;
         }
 
-        button#login-btn {
+        button {
             width: 100%;
             padding: 16px;
             background: var(--primary);
@@ -90,7 +90,7 @@
         }
 
         .logo-header {
-            width: 140px;
+            width: 200px;
             margin-bottom: 5px;
         }
 
@@ -117,51 +117,27 @@
             background: var(--bg);
         }
 
-        #searchInput {
-            border: 1.5px solid #3d3d4d;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(108, 92, 231, 0.1);
-        }
-
-        #searchInput:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(108, 92, 231, 0.3);
-        }
-
         .result-card {
             background: var(--card);
             border-radius: 16px;
-            padding: 22px;
+            padding: 25px;
             margin-bottom: 20px;
             border-left: 4px solid var(--primary);
-            animation: fadeIn 0.4s ease;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .label {
             font-size: 10px;
             color: #777;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
             font-weight: 600;
             margin-bottom: 6px;
             display: block;
         }
 
         .val-header {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
             color: #fff;
             margin-bottom: 12px;
@@ -176,24 +152,17 @@
             font-family: 'Courier New', monospace;
         }
 
-        .val-mono {
+        .val-normal {
             font-size: 16px;
-            color: #ddd;
-            margin-bottom: 16px;
+            color: #eee;
+            margin-bottom: 15px;
             font-family: 'Courier New', monospace;
-            letter-spacing: 0.5px;
-        }
-
-        #results {
-            margin-top: 20px;
         }
 
         .empty-state {
             text-align: center;
             color: #333;
             margin-top: 40px;
-            font-size: 13px;
-            letter-spacing: 1px;
         }
 
         #logout-btn {
@@ -205,19 +174,19 @@
             margin: 50px auto;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 2px;
         }
     </style>
 </head>
 
 <body>
-
     <div id="login-screen">
         <div class="login-card">
-            <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Logo">
+            <!-- LOGO CORREGIDO CON LINK DE RESPALDO -->
+            <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Logo"
+                onerror="this.src='https://i.postimg.cc/mD8zYpCH/logo-cimac.png'">
             <input type="text" id="email" placeholder="Usuario">
             <input type="password" id="password" placeholder="Contraseña">
-            <button id="login-btn" onclick="handleLogin()">INGRESAR AL SISTEMA</button>
+            <button onclick="handleLogin()">INGRESAR AL SISTEMA</button>
             <div id="error-msg" style="color:#ff7675; margin-top:15px; display:none; font-size:13px;">Credenciales
                 incorrectas</div>
         </div>
@@ -226,15 +195,12 @@
     <div id="app-screen">
         <header>
             <img class="logo-header" src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png"
-                alt="Logo">
+                alt="Logo" onerror="this.src='https://i.postimg.cc/mD8zYpCH/logo-cimac.png'">
             <h1>BUSCADOR CIMAC</h1>
         </header>
         <hr>
-        <div class="search-area">
-            <input type="text" id="searchInput" placeholder="Escribe búsqueda..." onkeyup="filterData()">
+        <div class="search-area"><input type="text" id="searchInput" placeholder="Buscar..." onkeyup="filterData()">
         </div>
-        <div id="loader" style="display:none; text-align:center; color:var(--purple); margin:20px; font-size:12px;">
-            BUSCANDO...</div>
         <div id="results">
             <div class="empty-state">Ingresa término para buscar</div>
         </div>
@@ -266,13 +232,11 @@
         }
 
         async function fetchData() {
-            document.getElementById('loader').style.display = 'block';
             try {
                 const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getData" }) });
                 const result = await response.json();
                 inventoryData = result.data;
             } catch (e) { console.error(e); }
-            finally { document.getElementById('loader').style.display = 'none'; }
         }
 
         function renderResults(data) {
@@ -287,7 +251,7 @@
                 const card = document.createElement('div');
                 card.className = 'result-card';
 
-                // Mapeo exacto de cabeceras
+                // Mapeo dinámico de Switch y Patch
                 let sw = "-", pp = "-";
                 for (let k in item) {
                     if (k.toLowerCase().includes("sw")) sw = item[k];
