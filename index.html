@@ -7,61 +7,68 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #6c5ce7; --bg: #0f0f12; --card: #1c1c21; --text: #f0f0f5; --accent: #a29bfe; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; }
         
-        /* --- LOGIN --- */
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at top right, #2d3436, var(--bg)); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .login-card { background: rgba(28, 28, 33, 0.8); backdrop-filter: blur(15px); padding: 40px; border-radius: 24px; width: 90%; max-width: 380px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .login-card img { max-width: 200px; margin-bottom: 24px; }
-        input { width: 100%; padding: 14px; margin: 12px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; box-sizing: border-box; font-size: 16px; }
-        input:focus { border-color: var(--primary); outline: none; }
+        .login-card img, header img { max-width: 200px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(108, 92, 231, 0.3)); }
+        
+        input { width: 100%; padding: 14px; margin: 12px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; background: rgba(255,255,255,0.1); }
         button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 10px; font-size: 16px; }
 
-        /* --- APP --- */
         #app-screen { display: none; padding: 20px; max-width: 600px; margin: 0 auto; box-sizing: border-box; }
         header { text-align: center; padding: 20px 0; }
-        header img { max-width: 180px; }
-        header h1 { font-size: 1.2rem; letter-spacing: 4px; color: var(--accent); margin-top: 15px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 15px; font-weight: 600; }
+        header h1 { font-size: 1.2rem; letter-spacing: 4px; color: var(--accent); margin-top: 10px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 15px; font-weight: 600; }
         
         .search-area { position: sticky; top: 0; z-index: 100; padding: 15px 0; background: var(--bg); }
-        .result-card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 16px; border-left: 4px solid var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: fadeInUp 0.3s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #results { margin-top: 20px; }
+        .result-card { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 20px; border-left: 5px solid var(--primary); box-shadow: 0 8px 25px rgba(0,0,0,0.3); animation: fadeInUp 0.4s ease; }
         
-        .label { font-size: 10px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px; }
-        .value { font-size: 16px; font-weight: 500; color: #fff; word-break: break-all; margin-bottom: 12px; font-family: 'Outfit', sans-serif; }
-        .value.mono { font-family: monospace; color: var(--accent); font-size: 15px; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        .loader { display: none; text-align: center; color: var(--accent); margin: 20px 0; font-weight: 300; }
-        #logout-btn { background: transparent; color: #555; border: 1px solid #333; font-size: 11px; padding: 6px 12px; margin-top: 40px; width: auto; cursor: pointer; }
-        #error-msg { color: #ff7675; font-size: 13px; margin-top: 10px; display: none; }
+        .field { margin-bottom: 15px; }
+        .field:last-child { margin-bottom: 0; }
+        .label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 4px; display: block; }
+        .value { font-size: 17px; font-weight: 400; color: #fff; }
+        .value.mono { font-family: 'Courier New', Courier, monospace; color: #fff; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+        
+        .loader { display: none; text-align: center; color: var(--accent); margin: 40px 0; font-size: 14px; letter-spacing: 1px; }
+        .empty-state { text-align: center; color: #444; margin-top: 60px; font-size: 14px; letter-spacing: 1px; }
+        #logout-btn { background: transparent; color: #555; border: 1px solid #333; font-size: 11px; padding: 6px 12px; margin-top: 50px; cursor: pointer; transition: 0.3s; }
+        #logout-btn:hover { color: #fff; border-color: #fff; }
     </style>
 </head>
 <body>
+
     <div id="login-screen">
         <div class="login-card">
+            <!-- LOGO CREATIC -->
             <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Creatic Logo">
             <input type="text" id="email" placeholder="Usuario">
             <input type="password" id="password" placeholder="Contraseña">
             <button onclick="handleLogin()">INGRESAR AL SISTEMA</button>
-            <div id="error-msg">Credenciales incorrectas</div>
+            <div id="error-msg" style="color:#ff7675; margin-top:10px; display:none; font-size:13px;">Credenciales incorrectas</div>
         </div>
     </div>
 
     <div id="app-screen">
         <header>
-            <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Creatic Logo">
+             <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Creatic Logo">
             <h1>BUSCADOR CIMAC</h1>
         </header>
 
         <div class="search-area">
-            <input type="text" id="searchInput" placeholder="Buscar MAC, IP, Dispositivo..." onkeyup="filterData()">
+            <input type="text" id="searchInput" placeholder="Escribe MAC, IP o Equipo..." onkeyup="filterData()">
         </div>
 
-        <div id="loader" class="loader">Un momento, sincronizando con la nube...</div>
-        <div id="results"></div>
+        <div id="loader" class="loader">SINCRONIZANDO CON LA NUBE...</div>
+        <div id="results">
+            <div class="empty-state">Listo para rastrear...</div>
+        </div>
 
         <div style="text-align: center;">
-            <button id="logout-btn" onclick="logout()">Cerrar Sesión</button>
+            <button id="logout-btn" onclick="logout()">CERRAR SESIÓN</button>
         </div>
     </div>
 
@@ -70,40 +77,24 @@
         let inventoryData = [];
 
         window.onload = () => {
-            if (localStorage.getItem('cimac_session')) showApp();
+            if (localStorage.getItem('cimac_session_active')) showApp();
         };
 
         async function handleLogin() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const errorEl = document.getElementById('error-msg');
-
             if (!email || !password) return;
 
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // Para evitar problemas de CORS en algunos navegadores
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: "login", email, password })
-                });
-                
-                // Debido a que 'no-cors' no nos deja ver el body, usamos un artificio o confiamos en el login exitoso.
-                // Pero lo ideal es usar el login normal. Vamos a intentar el normal primero:
                 const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "login", email, password }) });
                 const res = await resp.json();
-
                 if (res.status === "success") {
-                    localStorage.setItem('cimac_session', JSON.stringify(res.user));
+                    localStorage.setItem('cimac_session_active', 'true');
                     showApp();
                 } else {
-                    errorEl.style.display = 'block';
+                    document.getElementById('error-msg').style.display = 'block';
                 }
-            } catch (e) {
-                // Si falla por CORS, el usuario igual verá el error en consola, pero intentamos notificarle
-                errorEl.innerText = "Error de conexión o credenciales";
-                errorEl.style.display = 'block';
-            }
+            } catch (e) { alert("Error de conexión"); }
         }
 
         function showApp() {
@@ -113,44 +104,59 @@
         }
 
         async function fetchData() {
-            const loader = document.getElementById('loader');
-            loader.style.display = 'block';
+            document.getElementById('loader').style.display = 'block';
             try {
                 const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getData" }) });
                 const result = await response.json();
                 inventoryData = result.data;
-                renderResults(inventoryData);
-            } catch (e) {
-                alert("Error de sincronización.");
-            } finally {
-                loader.style.display = 'none';
-            }
+            } catch (e) { console.error(e); }
+            finally { document.getElementById('loader').style.display = 'none'; }
         }
 
         function renderResults(data) {
             const container = document.getElementById('results');
+            const searchVal = document.getElementById('searchInput').value.trim();
+            
+            if (searchVal === "" || data.length === 0) {
+                container.innerHTML = '<div class="empty-state">Escribe algo para empezar a buscar...</div>';
+                return;
+            }
+
             container.innerHTML = "";
             data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'result-card';
+                // Usamos fallback por si las cabeceras no coinciden
+                const switchVal = item.switch || item.SWITCH || '-';
+                const patchVal = item.patch || item.PATCH || '-';
+                const userVal = item.usuario || item.USUARIO || item.EQUIPO || 'Desconocido';
+                const macVal = item.mac || item.MAC || '-';
+                const ipVal = item.ip || item.IP || '-';
+
                 card.innerHTML = `
-                    <div class="field"><span class="label">SWITCH / PUERTO</span><div class="value">${item.switch || 'N/A'} - P:${item.patch || '??'}</div></div>
-                    <div class="field"><span class="label">USUARIO / EQUIPO</span><div class="value">${item.usuario || 'Desconocido'}</div></div>
-                    <div class="field"><span class="label">DIRECCIÓN MAC</span><div class="value mono">${item.mac || '-'}</div></div>
-                    <div class="field"><span class="label">DIRECCIÓN IP</span><div class="value mono">${item.ip || '-'}</div></div>
+                    <div class="field"><span class="label">SWITCH / PUERTO</span><div class="value">${switchVal} —— P:${patchVal}</div></div>
+                    <div class="field"><span class="label">EQUIPO / USUARIO</span><div class="value">${userVal}</div></div>
+                    <div class="field"><span class="label">MAC ADDRESS</span><div class="value mono">${macVal}</div></div>
+                    <div class="field"><span class="label">IP ADDRESS</span><div class="value mono" style="color:var(--accent)">${ipVal}</div></div>
                 `;
                 container.appendChild(card);
             });
         }
 
         function filterData() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = inventoryData.filter(i => Object.values(i).some(v => String(v).toLowerCase().includes(term)));
+            const term = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (term === "") {
+                renderResults([]);
+                return;
+            }
+            const filtered = inventoryData.filter(i => 
+                Object.values(i).some(v => String(v).toLowerCase().includes(term))
+            );
             renderResults(filtered);
         }
 
         function logout() {
-            localStorage.removeItem('cimac_session');
+            localStorage.removeItem('cimac_session_active');
             location.reload();
         }
     </script>
