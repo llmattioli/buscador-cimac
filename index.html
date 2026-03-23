@@ -25,8 +25,9 @@
             padding: 15px;
         }
 
-        /* --- LOGIN --- */
-        #login-screen {
+        /* --- LOGIN & MODAL --- */
+        #login-screen,
+        #modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -39,15 +40,26 @@
             z-index: 1000;
         }
 
-        .login-card {
+        #modal-overlay {
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+        }
+
+        .login-card,
+        .modal-card {
             text-align: center;
-            width: 100%;
+            width: 90%;
             max-width: 350px;
+            background: var(--card);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid #222;
         }
 
         .login-card img {
-            width: 320px;
-            margin-bottom: 35px;
+            width: 300px;
+            margin-bottom: 25px;
         }
 
         input {
@@ -87,7 +99,12 @@
             opacity: 0.7;
         }
 
-        /* --- SPINNER (Icono de carga) --- */
+        .btn-secondary {
+            background: #222;
+            color: #888;
+            margin-top: 10px;
+        }
+
         .spinner {
             display: none;
             width: 20px;
@@ -107,7 +124,7 @@
             }
         }
 
-        /* --- APP --- */
+        /* --- APP SCREEN --- */
         #app-screen {
             display: none;
             max-width: 480px;
@@ -205,7 +222,7 @@
         }
 
         #logout-btn,
-        #change-pass {
+        #change-pass-btn {
             background: transparent;
             color: #444;
             border: none;
@@ -218,6 +235,7 @@
 </head>
 
 <body>
+    <!-- LOGIN SCREEN -->
     <div id="login-screen">
         <div class="login-card">
             <img src="logo.png" alt="Logo">
@@ -232,21 +250,35 @@
         </div>
     </div>
 
+    <!-- MAIN APP SCREEN -->
     <div id="app-screen">
-        <header>
-            <img src="logo.png" alt="Logo">
+        <header><img src="logo.png" alt="Logo">
             <h1>BUSCADOR CIMAC</h1>
         </header>
         <hr>
-        <div class="search-area"><input type="text" id="searchInput" placeholder="Buscar..." onkeyup="filterData()">
-        </div>
+        <div class="search-area"><input type="text" id="searchInput" placeholder="Buscar por MAC, IP, Equipo..."
+                onkeyup="filterData()"></div>
         <div id="results">
             <div class="empty-state">Ingresa término para buscar</div>
         </div>
-
         <div class="actions-bar">
-            <button id="change-pass" onclick="changePassword()">Cambiar Clave</button>
+            <button id="change-pass-btn" onclick="openPassModal()">Cambiar Clave</button>
             <button id="logout-btn" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <!-- CHANGE PASSWORD MODAL -->
+    <div id="modal-overlay">
+        <div class="modal-card">
+            <h3 style="color:var(--purple); margin-top:0;">Nueva Contraseña</h3>
+            <p style="font-size:12px; color:#666;">Ingresa tu nueva clave personal</p>
+            <input type="password" id="newPass" placeholder="Nueva Contraseña">
+            <input type="password" id="confirmPass" placeholder="Confirmar Contraseña">
+            <button id="save-pass-btn" onclick="handlePassChange()">
+                GUARDAR CAMBIOS
+                <div id="pass-spinner" class="spinner"></div>
+            </button>
+            <button class="btn-secondary" onclick="closePassModal()">CANCELAR</button>
         </div>
     </div>
 
@@ -270,12 +302,9 @@
             const password = document.getElementById('password').value.trim();
             if (!email || !password) return;
 
-            // Mostrar spinner y bloquear botón
             const btn = document.getElementById('login-submit');
             const spinner = document.getElementById('login-spinner');
-            btn.disabled = true;
-            spinner.style.display = 'block';
-            document.getElementById('error-msg').style.display = 'none';
+            btn.disabled = true; spinner.style.display = 'block';
 
             try {
                 const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "login", email, password }) });
@@ -287,28 +316,33 @@
                     showApp();
                 } else {
                     document.getElementById('error-msg').style.display = 'block';
-                    btn.disabled = false;
-                    spinner.style.display = 'none';
+                    btn.disabled = false; spinner.style.display = 'none';
                 }
-            } catch (e) {
-                alert("Error de conexión con Google Sheets");
-                btn.disabled = false;
-                spinner.style.display = 'none';
-            }
+            } catch (e) { alert("Error de conexión"); btn.disabled = false; spinner.style.display = 'none'; }
         }
 
-        async function changePassword() {
-            const newPass = prompt("Ingresa tu nueva contraseña:");
-            if (!newPass) return;
-            const confirmPass = prompt("Repite la contraseña:");
-            if (newPass !== confirmPass) { alert("Las contraseñas no coinciden"); return; }
+        // --- LÓGICA DEL MODAL ---
+        function openPassModal() { document.getElementById('modal-overlay').style.display = 'flex'; }
+        function closePassModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+        async function handlePassChange() {
+            const newP = document.getElementById('newPass').value;
+            const confP = document.getElementById('confirmPass').value;
+            if (!newP || newP !== confP) { alert("Claves no coinciden"); return; }
+
+            const btn = document.getElementById('save-pass-btn');
+            const spinner = document.getElementById('pass-spinner');
+            btn.disabled = true; spinner.style.display = 'block';
 
             try {
-                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "changePassword", email: currentUserEmail, newPassword: newPass }) });
+                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "changePassword", email: currentUserEmail, newPassword: newP }) });
                 const res = await resp.json();
-                if (res.status === "success") { alert("✅ ¡Contraseña actualizada!"); }
-                else { alert("❌ Error: " + res.message); }
-            } catch (e) { alert("Error al cambiar clave."); }
+                if (res.status === "success") {
+                    alert("✅ Contraseña cambiada con éxito.");
+                    closePassModal();
+                } else { alert("Error: " + res.message); }
+            } catch (e) { alert("Error de comunicación"); }
+            finally { btn.disabled = false; spinner.style.display = 'none'; }
         }
 
         function showApp() {
