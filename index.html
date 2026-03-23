@@ -41,14 +41,15 @@
         .login-card {
             text-align: center;
             width: 100%;
-            max-width: 320px;
+            max-width: 350px;
         }
 
         .login-card img {
-            width: 180px;
-            margin-bottom: 30px;
+            width: 240px;
+            margin-bottom: 35px;
         }
 
+        /* Logo 30% más grande */
         input {
             width: 100%;
             padding: 16px;
@@ -89,11 +90,12 @@
             padding: 10px 0;
         }
 
-        .logo-header {
-            width: 200px;
+        header img {
+            width: 260px;
             margin-bottom: 5px;
         }
 
+        /* Logo 30% más grande */
         header h1 {
             font-size: 1.1rem;
             letter-spacing: 4px;
@@ -181,10 +183,9 @@
 <body>
     <div id="login-screen">
         <div class="login-card">
-            <!-- LOGO CORREGIDO CON LINK DE RESPALDO -->
             <img src="logo.png" alt="Logo">
             <input type="text" id="email" placeholder="Usuario">
-            <input type="password" id="password" placeholder="Contraseña">
+            <input type="password" id="password" placeholder="Contraseña" onkeypress="handleEnter(event)">
             <button onclick="handleLogin()">INGRESAR AL SISTEMA</button>
             <div id="error-msg" style="color:#ff7675; margin-top:15px; display:none; font-size:13px;">Credenciales
                 incorrectas</div>
@@ -208,6 +209,8 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxHzTfBLPL4p9CKl-TfNYRibayPQBgaBW0N9ApUCn5UTGyMjwNApkYvLeklfjVONF8e/exec";
         let inventoryData = [];
+
+        function handleEnter(e) { if (e.key === "Enter") handleLogin(); }
 
         window.onload = () => { if (localStorage.getItem('cimac_session_active')) showApp(); };
 
@@ -248,14 +251,11 @@
             data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'result-card';
-
-                // Mapeo dinámico de Switch y Patch
                 let sw = "-", pp = "-";
                 for (let k in item) {
                     if (k.toLowerCase().includes("sw")) sw = item[k];
                     if (k.toLowerCase().includes("pp")) pp = item[k];
                 }
-
                 card.innerHTML = `
                     <div class="field"><span class="label">USUARIO / EQUIPO</span><div class="val-header">${item.usuario || '-'} / ${item.puesto || '-'}</div></div>
                     <div class="field"><span class="label">DIRECCIÓN IP</span><div class="val-ip">${item.ip || '-'}</div></div>
