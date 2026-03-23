@@ -3,146 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CimacNet - Buscador Seguro</title>
+    <title>BUSCADOR CIMAC</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #6c5ce7;
-            --bg: #0f0f12;
-            --card: #1c1c21;
-            --text-main: #f0f0f5;
-            --text-dim: #a0a0b0;
-            --accent: #a29bfe;
-            --error: #ff7675;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* --- LOGIN SCREEN --- */
-        #login-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at top right, #2d3436, var(--bg));
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            transition: opacity 0.5s ease;
-        }
-
-        .login-card {
-            background: rgba(28, 28, 33, 0.8);
-            backdrop-filter: blur(15px);
-            padding: 40px;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 380px;
-            border: 1px solid rgba(255,255,255,0.05);
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .login-card img { max-width: 200px; margin-bottom: 24px; filter: drop-shadow(0 0 10px rgba(108, 92, 231, 0.3)); }
-
-        input {
-            width: 100%;
-            padding: 14px;
-            margin: 12px 0;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 16px;
-            box-sizing: border-box;
-            transition: border 0.3s;
-        }
-
+        :root { --primary: #6c5ce7; --bg: #0f0f12; --card: #1c1c21; --text: #f0f0f5; --accent: #a29bfe; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; overflow-x: hidden; }
+        
+        /* --- LOGIN --- */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at top right, #2d3436, var(--bg)); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-card { background: rgba(28, 28, 33, 0.8); backdrop-filter: blur(15px); padding: 40px; border-radius: 24px; width: 90%; max-width: 380px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .login-card img { max-width: 200px; margin-bottom: 24px; }
+        input { width: 100%; padding: 14px; margin: 12px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; box-sizing: border-box; font-size: 16px; }
         input:focus { border-color: var(--primary); outline: none; }
+        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 10px; font-size: 16px; }
 
-        button {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: transform 0.2s, background 0.3s;
-        }
-
-        button:active { transform: scale(0.98); }
-
-        #login-error { color: var(--error); font-size: 13px; margin-top: 15px; display: none; }
-
-        /* --- APP SCREEN --- */
-        #app-screen { display: none; padding: 20px; width: 100%; max-width: 600px; margin: 0 auto; box-sizing: border-box; }
-
+        /* --- APP --- */
+        #app-screen { display: none; padding: 20px; max-width: 600px; margin: 0 auto; box-sizing: border-box; }
         header { text-align: center; padding: 20px 0; }
         header img { max-width: 180px; }
-        header h1 { font-size: 1.1rem; letter-spacing: 4px; color: var(--accent); margin-top: 10px; text-transform: uppercase; }
-
-        .search-area { position: sticky; top: 10px; z-index: 50; padding: 10px 0; background: var(--bg); }
-
-        #results { margin-top: 20px; }
-
-        .result-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border-left: 4px solid var(--primary);
-            animation: slideUp 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        @keyframes slideUp { from { opacity:0; transform: translateY(15px); } to { opacity:1; transform: translateY(0); } }
-
-        .field { margin-bottom: 10px; }
-        .label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; display: block; }
-        .value { font-size: 16px; font-weight: 500; color: #fff; word-break: break-all; }
-
-        .loader { display: none; text-align: center; color: var(--accent); margin: 20px 0; font-size: 14px; }
-
-        #logout-btn { background: transparent; color: var(--text-dim); border: 1px solid #333; font-size: 12px; padding: 8px; margin-top: 30px; width: auto; cursor: pointer; }
+        header h1 { font-size: 1.2rem; letter-spacing: 4px; color: var(--accent); margin-top: 15px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 15px; font-weight: 600; }
+        
+        .search-area { position: sticky; top: 0; z-index: 100; padding: 15px 0; background: var(--bg); }
+        .result-card { background: var(--card); border-radius: 16px; padding: 20px; margin-bottom: 16px; border-left: 4px solid var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: fadeInUp 0.3s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .label { font-size: 10px; color: #a0a0b0; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+        .value { font-size: 16px; font-weight: 500; color: #fff; word-break: break-all; margin-bottom: 12px; font-family: 'Outfit', sans-serif; }
+        .value.mono { font-family: monospace; color: var(--accent); font-size: 15px; }
+        
+        .loader { display: none; text-align: center; color: var(--accent); margin: 20px 0; font-weight: 300; }
+        #logout-btn { background: transparent; color: #555; border: 1px solid #333; font-size: 11px; padding: 6px 12px; margin-top: 40px; width: auto; cursor: pointer; }
+        #error-msg { color: #ff7675; font-size: 13px; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
-
-    <!-- SCREEN 1: LOGIN -->
     <div id="login-screen">
         <div class="login-card">
-            <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Cimac Logo">
+            <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Creatic Logo">
             <input type="text" id="email" placeholder="Usuario">
             <input type="password" id="password" placeholder="Contraseña">
             <button onclick="handleLogin()">INGRESAR AL SISTEMA</button>
-            <div id="login-error">Credenciales incorrectas</div>
+            <div id="error-msg">Credenciales incorrectas</div>
         </div>
     </div>
 
-    <!-- SCREEN 2: BUSCADOR -->
     <div id="app-screen">
         <header>
-            <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Logo">
-            <h1>Buscador Seguro</h1>
+            <img src="https://cimacnet.com.ar/wp-content/uploads/2021/08/cimacnet-logo-blanco.png" alt="Creatic Logo">
+            <h1>BUSCADOR CIMAC</h1>
         </header>
 
         <div class="search-area">
-            <input type="text" id="searchInput" placeholder="Buscar por MAC, IP, Puerto o Switch..." onkeyup="filterData()">
+            <input type="text" id="searchInput" placeholder="Buscar MAC, IP, Dispositivo..." onkeyup="filterData()">
         </div>
 
-        <div id="loader" class="loader">Consultando Google Sheets...</div>
+        <div id="loader" class="loader">Un momento, sincronizando con la nube...</div>
         <div id="results"></div>
 
         <div style="text-align: center;">
@@ -151,40 +66,43 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyQ1oMquRrC-aCnE7oBlmECVo2CFrsNk0JhZzkusDaSpIc-LwnPMq1C8T9S1RVfqgrJ/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxHzTfBLPL4p9CKl-TfNYRibayPQBgaBW0N9ApUCn5UTGyMjwNApkYvLeklfjVONF8e/exec";
         let inventoryData = [];
 
-        // Verificar sesión al cargar
         window.onload = () => {
-            const user = localStorage.getItem('cimac_user');
-            if (user) {
-                showApp();
-            }
+            if (localStorage.getItem('cimac_session')) showApp();
         };
 
         async function handleLogin() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const errorEl = document.getElementById('login-error');
+            const errorEl = document.getElementById('error-msg');
 
             if (!email || !password) return;
 
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
+                    mode: 'no-cors', // Para evitar problemas de CORS en algunos navegadores
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: "login", email, password })
                 });
-                const result = await response.json();
+                
+                // Debido a que 'no-cors' no nos deja ver el body, usamos un artificio o confiamos en el login exitoso.
+                // Pero lo ideal es usar el login normal. Vamos a intentar el normal primero:
+                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "login", email, password }) });
+                const res = await resp.json();
 
-                if (result.status === "success") {
-                    localStorage.setItem('cimac_user', JSON.stringify(result.user));
+                if (res.status === "success") {
+                    localStorage.setItem('cimac_session', JSON.stringify(res.user));
                     showApp();
                 } else {
                     errorEl.style.display = 'block';
                 }
-            } catch (err) {
-                console.error(err);
-                alert("Error al conectar con el servidor.");
+            } catch (e) {
+                // Si falla por CORS, el usuario igual verá el error en consola, pero intentamos notificarle
+                errorEl.innerText = "Error de conexión o credenciales";
+                errorEl.style.display = 'block';
             }
         }
 
@@ -197,18 +115,13 @@
         async function fetchData() {
             const loader = document.getElementById('loader');
             loader.style.display = 'block';
-            
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: "getData" })
-                });
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getData" }) });
                 const result = await response.json();
                 inventoryData = result.data;
                 renderResults(inventoryData);
             } catch (e) {
-                console.error(e);
-                alert("Error cargando el inventario.");
+                alert("Error de sincronización.");
             } finally {
                 loader.style.display = 'none';
             }
@@ -216,31 +129,28 @@
 
         function renderResults(data) {
             const container = document.getElementById('results');
-            container.innerHTML = data.length === 0 ? '<p style="text-align:center; color:#555">Sin resultados...</p>' : '';
-            
+            container.innerHTML = "";
             data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'result-card';
                 card.innerHTML = `
-                    <div class="field"><span class="label">SWITCH / PORT</span><div class="value">${item.switch || 'N/A'} - ${item.patch || 'P.N/A'}</div></div>
-                    <div class="field"><span class="label">USUARIO / DISPOSITIVO</span><div class="value">${item.usuario || 'Desconocido'}</div></div>
-                    <div class="field"><span class="label">MAC ADDRESS</span><div class="value" style="font-family:monospace">${item.mac || '-'}</div></div>
-                    <div class="field"><span class="label">IP ADDRESS</span><div class="value" style="color:var(--accent); font-family:monospace">${item.ip || '-'}</div></div>
+                    <div class="field"><span class="label">SWITCH / PUERTO</span><div class="value">${item.switch || 'N/A'} - P:${item.patch || '??'}</div></div>
+                    <div class="field"><span class="label">USUARIO / EQUIPO</span><div class="value">${item.usuario || 'Desconocido'}</div></div>
+                    <div class="field"><span class="label">DIRECCIÓN MAC</span><div class="value mono">${item.mac || '-'}</div></div>
+                    <div class="field"><span class="label">DIRECCIÓN IP</span><div class="value mono">${item.ip || '-'}</div></div>
                 `;
                 container.appendChild(card);
             });
         }
 
         function filterData() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = inventoryData.filter(item => {
-                return Object.values(item).some(val => String(val).toLowerCase().includes(searchTerm));
-            });
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = inventoryData.filter(i => Object.values(i).some(v => String(v).toLowerCase().includes(term)));
             renderResults(filtered);
         }
 
         function logout() {
-            localStorage.removeItem('cimac_user');
+            localStorage.removeItem('cimac_session');
             location.reload();
         }
     </script>
