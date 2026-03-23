@@ -10,21 +10,21 @@
         body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; }
         #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at top right, #2d3436, var(--bg)); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .login-card { background: rgba(28, 28, 33, 0.8); backdrop-filter: blur(15px); padding: 40px; border-radius: 24px; width: 90%; max-width: 380px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .login-card img, header img { max-width: 200px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(108, 92, 231, 0.3)); }
+        .login-card img, header img { max-width: 260px; margin-bottom: 20px; filter: drop-shadow(0 0 10px rgba(108, 92, 231, 0.3)); }
         input { width: 100%; padding: 14px; margin: 12px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 10px; font-size: 16px; }
         #app-screen { display: none; padding: 20px; max-width: 600px; margin: 0 auto; box-sizing: border-box; }
         header { text-align: center; padding: 20px 0; }
-        header h1 { font-size: 1.2rem; letter-spacing: 4px; color: var(--accent); margin-top: 10px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 15px; font-weight: 600; }
+        header h1 { font-size: 1.3rem; letter-spacing: 5px; color: var(--accent); margin-top: 10px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 15px; font-weight: 600; }
         .search-area { position: sticky; top: 0; z-index: 100; padding: 15px 0; background: var(--bg); }
-        .result-card { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 20px; border-left: 5px solid var(--primary); box-shadow: 0 8px 25px rgba(0,0,0,0.3); animation: fadeInUp 0.4s ease; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .result-card { background: var(--card); border-radius: 16px; padding: 24px; margin-bottom: 20px; border-left: 5px solid var(--primary); box-shadow: 0 8px 25px rgba(0,0,0,0.3); animation: fadeInUp 0.3s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin-bottom: 4px; display: block; }
         .value { font-size: 17px; font-weight: 400; color: #fff; margin-bottom: 12px; }
-        .value.mono { font-family: 'Courier New', Courier, monospace; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
+        .value.mono { font-family: 'Courier New', Courier, monospace; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; display: inline-block; width: 100%; box-sizing: border-box; }
         .loader { display: none; text-align: center; color: var(--accent); margin: 40px 0; font-size: 14px; }
         .empty-state { text-align: center; color: #444; margin-top: 60px; font-size: 14px; }
-        #logout-btn { background: transparent; color: #555; border: 1px solid #333; font-size: 11px; padding: 6px 12px; margin-top: 50px; cursor: pointer; }
+        #logout-btn { background: transparent; color: #444; border: 1px solid #222; font-size: 11px; padding: 6px 12px; margin-top: 50px; cursor: pointer; width: auto; border-radius: 20px; }
     </style>
 </head>
 <body>
@@ -46,7 +46,7 @@
         <div class="search-area">
             <input type="text" id="searchInput" placeholder="Escribe MAC, IP o Equipo..." onkeyup="filterData()">
         </div>
-        <div id="loader" class="loader">SINCRONIZANDO...</div>
+        <div id="loader" class="loader">CONECTANDO CON DATA CENTER...</div>
         <div id="results"><div class="empty-state">Listo para rastrear...</div></div>
         <div style="text-align: center;"><button id="logout-btn" onclick="logout()">CERRAR SESIÓN</button></div>
     </div>
@@ -88,26 +88,33 @@
             const container = document.getElementById('results');
             const searchVal = document.getElementById('searchInput').value.trim();
             if (searchVal === "" || data.length === 0) {
-                container.innerHTML = '<div class="empty-state">Escribe algo para empezar a buscar...</div>';
+                container.innerHTML = '<div class="empty-state">Ingresa un parámetro para buscar...</div>';
                 return;
             }
             container.innerHTML = "";
+            
             data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'result-card';
-                // Mapeo exacto de tus cabeceras: SWxx_xx | PPxx_xx | MAC | USUARIO | PUESTO | IP
-                const switchVal = item['swxx_xx'] || '-';
-                const patchVal = item['ppxx_xx'] || '-';
-                const userVal = item['usuario'] || '-';
-                const positionVal = item['puesto'] || '-';
-                const macVal = item['mac'] || '-';
-                const ipVal = item['ip'] || '-';
+
+                // BUSQUEDA DINÁMICA DE COLUMNAS (Para SW y PP)
+                let swVal = "-";
+                let ppVal = "-";
+                for (let key in item) {
+                    if (key.startsWith("sw")) swVal = item[key];
+                    if (key.startsWith("pp")) ppVal = item[key];
+                }
+
+                const userVal = item['usuario'] || item['USUARIO'] || 'N/A';
+                const posVal = item['puesto'] || item['PUESTO'] || '';
+                const macVal = item['mac'] || item['MAC'] || '-';
+                const ipVal = item['ip'] || item['IP'] || '-';
 
                 card.innerHTML = `
-                    <div class="field"><span class="label">SWITCH / PUERTO</span><div class="value">${switchVal} —— ${patchVal}</div></div>
-                    <div class="field"><span class="label">EQUIPO / USUARIO</span><div class="value">${userVal} (${positionVal})</div></div>
-                    <div class="field"><span class="label">MAC ADDRESS</span><div class="value mono">${macVal}</div></div>
-                    <div class="field"><span class="label">IP ADDRESS</span><div class="value mono" style="color:var(--accent)">${ipVal}</div></div>
+                    <div class="field"><span class="label">SWITCH / PUERTO</span><div class="value">${swVal} —— ${ppVal}</div></div>
+                    <div class="field"><span class="label">EQUIPO / USUARIO / PUESTO</span><div class="value">${userVal} ${posVal ? '['+posVal+']' : ''}</div></div>
+                    <div class="field"><span class="label">DIRECCIÓN MAC</span><div class="value mono">${macVal}</div></div>
+                    <div class="field"><span class="label">DIRECCIÓN IP</span><div class="value mono" style="color:var(--accent)">${ipVal}</div></div>
                 `;
                 container.appendChild(card);
             });
@@ -116,7 +123,9 @@
         function filterData() {
             const term = document.getElementById('searchInput').value.toLowerCase().trim();
             if (term === "") { renderResults([]); return; }
-            const filtered = inventoryData.filter(i => Object.values(i).some(v => String(v).toLowerCase().includes(term)));
+            const filtered = inventoryData.filter(i => 
+                Object.values(i).some(v => String(v).toLowerCase().includes(term))
+            );
             renderResults(filtered);
         }
 
