@@ -224,9 +224,13 @@
                 const card = document.createElement('div');
                 card.className = 'result-card';
                 if (currentMode === 'sw') {
-                    let sw = item.sw || item.switch || "-", pp = item.pp || item.patch_panel || "-";
+                    let sw = "-", pp = "-";
+                    for (let k in item) {
+                        if (k.toLowerCase().includes('sw')) sw = item[k] || sw;
+                        if (k.toLowerCase().includes('pp')) pp = item[k] || pp;
+                    }
                     card.innerHTML = `
-                        <div class="field"><span class="label">EQUIPO</span><div class="val-header">${item.usuario || '-'} / ${item.puesto || '-'}</div></div>
+                        <div class="field"><span class="label">EQUIPO</span><div class="val-header">${item.equipo || item.id || '-'} / ${item.usuario || '-'} / ${item.puesto || '-'}</div></div>
                         <div class="field"><span class="label">DIRECCIÓN IP / MAC</span><div class="val-ip">${item.ip || '-'}</div><div style="font-size:12px;color:#888">${item.mac || '-'}</div></div>
                         <div class="field"><span class="label">CONEXIÓN</span><div class="val-normal">SW: ${sw} | PP: ${pp}</div></div>
                     `;
