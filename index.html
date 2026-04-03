@@ -40,6 +40,12 @@
         .empty-state { text-align: center; color: #333; margin-top: 40px; }
         .actions-bar { display: flex; justify-content: center; gap: 20px; border-top: 1px solid #1a1a1a; padding-top: 20px; margin-top: 30px; }
         #logout-btn, #change-pass-btn { background: transparent; color: #444; border: none; font-size: 9px; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px; }
+
+        /* --- TABS --- */
+        .nav-tabs { display: flex; background: #1a1a1a; border-radius: 14px; margin: 10px 0 20px; padding: 4px; gap: 4px; }
+        .tab-btn { flex: 1; padding: 14px; text-align: center; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; color: #666; transition: 0.3s; letter-spacing: 1px; }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); }
+        .tab-btn:hover:not(.active) { color: #aaa; background: #222; }
     </style>
 </head>
 <body>
@@ -62,7 +68,15 @@
     <div id="app-screen">
         <header><img src="https://llmattioli.github.io/buscador-cimac/logo.png" alt="Logo"><h1>BUSCADOR CIMAC</h1></header>
         <hr>
-        <div class="search-area"><input type="text" id="searchInput" placeholder="Buscar por MAC, IP, Equipo..." onkeyup="filterData()"></div>
+        
+        <div class="nav-tabs">
+            <div id="tab-sw" class="tab-btn active" onclick="setMode('sw')">RED / EQUIPOS</div>
+            <div id="tab-pp" class="tab-btn" onclick="setMode('pp')">PATCH PANELS</div>
+        </div>
+
+        <div class="search-area">
+            <input type="text" id="searchInput" placeholder="Buscar..." onkeyup="filterData()">
+        </div>
         <div id="results"><div class="empty-state">Ingresa término para buscar</div></div>
         
         <div class="actions-bar">
@@ -89,6 +103,8 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxHzTfBLPL4p9CKl-TfNYRibayPQBgaBW0N9ApUCn5UTGyMjwNApkYvLeklfjVONF8e/exec";
         let inventoryData = [];
+        let ppData = [];
+        let currentMode = 'sw'; // 'sw' o 'pp'
         let currentUserEmail = "";
 
         function handleEnter(e) { if (e.key === "Enter") handleLogin(); }
@@ -97,6 +113,11 @@
             const session = localStorage.getItem('cimac_session_active');
             if (session) {
                 currentUserEmail = localStorage.getItem('cimac_user_email');
+                
+                // Detectar si viene desde un QR específico para PP
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('view') === 'pp') currentMode = 'pp';
+                
                 showApp();
             }
         };
@@ -151,40 +172,79 @@
         function showApp() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('app-screen').style.display = 'block';
+            updateTabs();
             fetchData();
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            updateTabs();
+            document.getElementById('searchInput').value = "";
+            document.getElementById('searchInput').placeholder = mode === 'sw' ? "Buscar por MAC, IP, Equipo..." : "Buscar Patch Panel, Boca, Rack...";
+            renderResults([]);
+        }
+
+        function updateTabs() {
+            document.getElementById('tab-sw').className = currentMode === 'sw' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('tab-pp').className = currentMode === 'pp' ? 'tab-btn active' : 'tab-btn';
         }
 
         async function fetchData() {
             try {
-                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getData" }) });
-                const result = await response.json();
-                inventoryData = result.data;
-            } catch (e) { console.error(e); }
+                // Obtenemos ambos sets de datos
+                const [respSW, respPP] = await Promise.all([
+                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getData" }) }),
+                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getPPData" }) })
+                ]);
+                
+                const resultSW = await respSW.json();
+                const resultPP = await respPP.json();
+                
+                inventoryData = resultSW.data || [];
+                ppData = resultPP.data || [];
+            } catch (e) { console.error("Error cargando datos:", e); }
         }
 
         function renderResults(data) {
             const container = document.getElementById('results');
             const searchVal = document.getElementById('searchInput').value.trim();
             if (searchVal === "" || data.length === 0) {
-                container.innerHTML = '<div class="empty-state">Sin resultados...</div>';
+                container.innerHTML = '<div class="empty-state">' + (searchVal === "" ? 'Ingresa término para buscar' : 'Sin resultados...') + '</div>';
                 return;
             }
             container.innerHTML = "";
             data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'result-card';
-                let sw = "-", pp = "-";
-                for (let k in item) {
-                    if (k.toLowerCase().includes("sw")) sw = item[k];
-                    if (k.toLowerCase().includes("pp")) pp = item[k];
+                
+                if (currentMode === 'sw') {
+                    let sw = "-", pp = "-";
+                    for (let k in item) {
+                        if (k.toLowerCase().includes("sw")) sw = item[k];
+                        if (k.toLowerCase().includes("pp")) pp = item[k];
+                    }
+                    card.innerHTML = `
+                        <div class="field"><span class="label">USUARIO / EQUIPO</span><div class="val-header">${item.usuario || '-'} / ${item.puesto || '-'}</div></div>
+                        <div class="field"><span class="label">DIRECCIÓN IP</span><div class="val-ip">${item.ip || '-'}</div></div>
+                        <div class="field"><span class="label">SWITCH PORT</span><div class="val-normal">${sw}</div></div>
+                        <div class="field"><span class="label">PATCH PANEL</span><div class="val-normal">${pp}</div></div>
+                        <div class="field"><span class="label">DIRECCIÓN MAC</span><div class="val-normal">${item.mac || '-'}</div></div>
+                    `;
+                } else {
+                    // Diseño para Patch Panels
+                    let pp_name = item.pp || item.patch_panel || item.nombre || "-";
+                    let boca = item.boca || item.puerto || item.boca_n || "-";
+                    let destino = item.destino || item.ambiente || item.puesto || "-";
+                    let rack = item.rack || item.ubicacion || "-";
+                    
+                    card.style.borderLeftColor = "var(--accent)";
+                    card.innerHTML = `
+                        <div class="field"><span class="label">PATCH PANEL / BOCA</span><div class="val-header">${pp_name} / ${boca}</div></div>
+                        <div class="field"><span class="label">DESTINO / AMBIENTE</span><div class="val-ip">${destino}</div></div>
+                        <div class="field"><span class="label">UBICACIÓN RACK</span><div class="val-normal">${rack}</div></div>
+                        ${item.switch_port ? `<div class="field"><span class="label">SWITCH PORT</span><div class="val-normal">${item.switch_port}</div></div>` : ''}
+                    `;
                 }
-                card.innerHTML = `
-                    <div class="field"><span class="label">USUARIO / EQUIPO</span><div class="val-header">${item.usuario || '-'} / ${item.puesto || '-'}</div></div>
-                    <div class="field"><span class="label">DIRECCIÓN IP</span><div class="val-ip">${item.ip || '-'}</div></div>
-                    <div class="field"><span class="label">SWITCH PORT</span><div class="val-normal">${sw}</div></div>
-                    <div class="field"><span class="label">PATCH PANEL</span><div class="val-normal">${pp}</div></div>
-                    <div class="field"><span class="label">DIRECCIÓN MAC</span><div class="val-normal">${item.mac || '-'}</div></div>
-                `;
                 container.appendChild(card);
             });
         }
@@ -192,7 +252,9 @@
         function filterData() {
             const term = document.getElementById('searchInput').value.toLowerCase().trim();
             if (term === "") { renderResults([]); return; }
-            const filtered = inventoryData.filter(i => Object.values(i).some(v => String(v).toLowerCase().includes(term)));
+            
+            const source = currentMode === 'sw' ? inventoryData : ppData;
+            const filtered = source.filter(i => Object.values(i).some(v => String(v).toLowerCase().includes(term)));
             renderResults(filtered);
         }
 
