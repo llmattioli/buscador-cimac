@@ -46,6 +46,10 @@
         .tab-btn { flex: 1; padding: 14px; text-align: center; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; color: #666; transition: 0.3s; letter-spacing: 1px; }
         .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); }
         .tab-btn:hover:not(.active) { color: #aaa; background: #222; }
+
+        /* --- PP SEARCH --- */
+        #pp-inputs { display: none; gap: 10px; margin-bottom: 20px; }
+        #pp-inputs input { flex: 1; text-align: center; margin: 0; }
     </style>
 </head>
 <body>
@@ -75,7 +79,11 @@
         </div>
 
         <div class="search-area">
-            <input type="text" id="searchInput" placeholder="Buscar..." onkeyup="filterData()">
+            <input type="text" id="searchInput" placeholder="Buscar por MAC, IP, Equipo..." onkeyup="filterData()">
+            <div id="pp-inputs">
+                <input type="number" id="ppNum" placeholder="N° PP" oninput="filterData()">
+                <input type="number" id="portNum" placeholder="N° Puerto" oninput="filterData()">
+            </div>
         </div>
         <div id="results"><div class="empty-state">Ingresa término para buscar</div></div>
         
@@ -180,8 +188,17 @@
             currentMode = mode;
             updateTabs();
             document.getElementById('searchInput').value = "";
-            document.getElementById('searchInput').placeholder = mode === 'sw' ? "Buscar por MAC, IP, Equipo..." : "Buscar Patch Panel, Boca, Rack...";
-            renderResults([]);
+            document.getElementById('ppNum').value = "";
+            document.getElementById('portNum').value = "";
+            document.getElementById('results').innerHTML = '<div class="empty-state">Ingresa datos para buscar</div>';
+
+            if (mode === 'sw') {
+                document.getElementById('searchInput').style.display = 'block';
+                document.getElementById('pp-inputs').style.display = 'none';
+            } else {
+                document.getElementById('searchInput').style.display = 'none';
+                document.getElementById('pp-inputs').style.display = 'flex';
+            }
         }
 
         function updateTabs() {
@@ -207,9 +224,13 @@
 
         function renderResults(data) {
             const container = document.getElementById('results');
-            const searchVal = document.getElementById('searchInput').value.trim();
-            if (searchVal === "" || data.length === 0) {
-                container.innerHTML = '<div class="empty-state">' + (searchVal === "" ? 'Ingresa término para buscar' : 'Sin resultados...') + '</div>';
+            if (data.length === 0) {
+                // Solo mostrar "Sin resultados" si el usuario escribió algo
+                const isSearching = currentMode === 'sw' ? 
+                    document.getElementById('searchInput').value.trim() !== "" :
+                    (document.getElementById('ppNum').value !== "" && document.getElementById('portNum').value !== "");
+                
+                container.innerHTML = '<div class="empty-state">' + (isSearching ? 'Sin resultados...' : 'Ingresa término para buscar') + '</div>';
                 return;
             }
             container.innerHTML = "";
@@ -226,23 +247,19 @@
                     card.innerHTML = `
                         <div class="field"><span class="label">USUARIO / EQUIPO</span><div class="val-header">${item.usuario || '-'} / ${item.puesto || '-'}</div></div>
                         <div class="field"><span class="label">DIRECCIÓN IP</span><div class="val-ip">${item.ip || '-'}</div></div>
-                        <div class="field"><span class="label">SWITCH PORT</span><div class="val-normal">${sw}</div></div>
-                        <div class="field"><span class="label">PATCH PANEL</span><div class="val-normal">${pp}</div></div>
+                        <div class="field"><span class="label">SWITCH/PP PORT</span><div class="val-normal">${String(sw)} / ${String(pp)}</div></div>
                         <div class="field"><span class="label">DIRECCIÓN MAC</span><div class="val-normal">${item.mac || '-'}</div></div>
                     `;
                 } else {
-                    // Diseño para Patch Panels
-                    let pp_name = item.pp || item.patch_panel || item.nombre || "-";
-                    let boca = item.boca || item.puerto || item.boca_n || "-";
-                    let destino = item.destino || item.ambiente || item.puesto || "-";
-                    let rack = item.rack || item.ubicacion || "-";
+                    // Lógica para PP: Concatenar 3 celdas a la derecha de la primera
+                    const vals = Object.values(item);
+                    // vals[0] es el ID (PP01_01). vals[1], vals[2], vals[3] son las 3 celdas a la derecha
+                    const concat = [vals[1], vals[2], vals[3]].filter(v => v !== undefined && v !== "").join(" / ");
                     
                     card.style.borderLeftColor = "var(--accent)";
                     card.innerHTML = `
-                        <div class="field"><span class="label">PATCH PANEL / BOCA</span><div class="val-header">${pp_name} / ${boca}</div></div>
-                        <div class="field"><span class="label">DESTINO / AMBIENTE</span><div class="val-ip">${destino}</div></div>
-                        <div class="field"><span class="label">UBICACIÓN RACK</span><div class="val-normal">${rack}</div></div>
-                        ${item.switch_port ? `<div class="field"><span class="label">SWITCH PORT</span><div class="val-normal">${item.switch_port}</div></div>` : ''}
+                        <div class="field"><span class="label">IDENTIFICADOR</span><div class="val-header">${vals[0]}</div></div>
+                        <div class="field"><span class="label">DETALLE PUERTO (3 CELDAS)</span><div class="val-ip" style="font-size:16px;">${concat || 'Sin datos adicionales'}</div></div>
                     `;
                 }
                 container.appendChild(card);
@@ -250,12 +267,26 @@
         }
 
         function filterData() {
-            const term = document.getElementById('searchInput').value.toLowerCase().trim();
-            if (term === "") { renderResults([]); return; }
-            
-            const source = currentMode === 'sw' ? inventoryData : ppData;
-            const filtered = source.filter(i => Object.values(i).some(v => String(v).toLowerCase().includes(term)));
-            renderResults(filtered);
+            if (currentMode === 'sw') {
+                const term = document.getElementById('searchInput').value.toLowerCase().trim();
+                if (term === "") { renderResults([]); return; }
+                const filtered = inventoryData.filter(i => Object.values(i).some(v => String(v).toLowerCase().includes(term)));
+                renderResults(filtered);
+            } else {
+                const ppRaw = document.getElementById('ppNum').value;
+                const portRaw = document.getElementById('portNum').value;
+                
+                if (!ppRaw || !portRaw) { renderResults([]); return; }
+                
+                const pad = (n) => String(n).padStart(2, '0');
+                const searchID = `PP${pad(ppRaw)}_${pad(portRaw)}`;
+                
+                const found = ppData.find(item => {
+                    const firstKey = Object.keys(item)[0];
+                    return String(item[firstKey]).trim().toUpperCase() === searchID.toUpperCase();
+                });
+                renderResults(found ? [found] : []);
+            }
         }
 
         function logout() { localStorage.removeItem('cimac_session_active'); localStorage.removeItem('cimac_user_email'); location.reload(); }
