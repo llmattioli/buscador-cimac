@@ -199,14 +199,29 @@
             } else {
                 const ppRaw = document.getElementById('ppNum').value;
                 const portRaw = document.getElementById('portNum').value;
-                if (!ppRaw || !portRaw) { renderResults([]); return; }
+                if (!ppRaw) { renderResults([]); return; }
+
                 const pad = (n) => String(n).padStart(2, '0');
-                const searchID = `PP${pad(ppRaw)}_${pad(portRaw)}`;
-                const found = ppData.find(item => {
-                    const firstKey = Object.keys(item)[0];
-                    return String(item[firstKey]).trim().toUpperCase() === searchID.toUpperCase();
-                });
-                renderResults(found ? [found] : []);
+                const ppPrefix = `PP${pad(ppRaw)}`;
+
+                if (portRaw) {
+                    // Búsqueda específica
+                    const searchID = `${ppPrefix}_${pad(portRaw)}`;
+                    const found = ppData.find(item => String(Object.values(item)[0]).trim().toUpperCase() === searchID.toUpperCase());
+                    renderResults(found ? [found] : []);
+                } else {
+                    // Ver todos los puertos de ese PP
+                    let filtered = ppData.filter(item => String(Object.values(item)[0]).trim().toUpperCase().startsWith(ppPrefix + "_"));
+                    
+                    // Ordenar de menor a mayor (basado en el Identificador PPXX_XX)
+                    filtered.sort((a, b) => {
+                        const keyA = String(Object.values(a)[0]).toUpperCase();
+                        const keyB = String(Object.values(b)[0]).toUpperCase();
+                        return keyA.localeCompare(keyB);
+                    });
+                    
+                    renderResults(filtered);
+                }
             }
         }
 
