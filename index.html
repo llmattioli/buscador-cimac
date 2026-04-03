@@ -1,291 +1,61 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BUSCADOR CIMAC</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #6c5ce7;
-            --bg: #0b0b0d;
-            --card: #15151a;
-            --text: #f0f0f5;
-            --accent: #1dd1a1;
-            --purple: #a29bfe;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            min-height: 100vh;
-            padding: 15px;
-        }
-
+        :root { --primary: #6c5ce7; --bg: #0b0b0d; --card: #15151a; --text: #f0f0f5; --accent: #1dd1a1; --purple: #a29bfe; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; padding: 15px; }
+        
         /* --- LOGIN & MODAL --- */
-        #login-screen,
-        #modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0b0b0d;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+        #login-screen, #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0b0d; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        #modal-overlay { background: rgba(0,0,0,0.9); z-index: 2000; display: none; }
+        .login-card, .modal-card { text-align: center; width: 90%; max-width: 350px; background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid #222; }
+        .login-card img { width: 320px; margin-bottom: 25px; } 
+        
+        input { width: 100%; padding: 16px; margin: 10px 0; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: #fff; box-sizing: border-box; font-size: 16px; }
+        input:focus { border-color: var(--primary); outline: none; }
+        
+        button { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 15px; font-size: 16px; position: relative; }
+        button:disabled { background: #444; cursor: not-allowed; opacity: 0.7; }
+        .btn-secondary { background: #222; color: #888; margin-top: 10px; }
 
-        #modal-overlay {
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 2000;
-            display: none;
-        }
-
-        .login-card,
-        .modal-card {
-            text-align: center;
-            width: 90%;
-            max-width: 350px;
-            background: var(--card);
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid #222;
-        }
-
-        .login-card img {
-            width: 320px;
-            margin-bottom: 25px;
-        }
-
-        input {
-            width: 100%;
-            padding: 16px;
-            margin: 10px 0;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 12px;
-            color: #fff;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-
-        button {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 15px;
-            font-size: 16px;
-            position: relative;
-        }
-
-        button:disabled {
-            background: #444;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        .btn-secondary {
-            background: #222;
-            color: #888;
-            margin-top: 10px;
-        }
-
-        .spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 0.8s linear infinite;
-            position: absolute;
-            right: 20px;
-            top: calc(50% - 13px);
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        .spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; position: absolute; right: 20px; top: calc(50% - 13px); }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* --- APP SCREEN --- */
-        #app-screen {
-            display: none;
-            max-width: 480px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            padding: 10px 0;
-        }
-
-        header img {
-            width: 260px;
-            margin-bottom: 5px;
-        }
-
-        header h1 {
-            font-size: 1.1rem;
-            letter-spacing: 4px;
-            color: var(--purple);
-            margin: 5px 0 15px;
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-
-        hr {
-            border: 0;
-            border-top: 1px solid #1f1f24;
-            margin-bottom: 25px;
-        }
-
-        .search-area {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 10px 0;
-            background: var(--bg);
-        }
-
-        .result-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--primary);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        }
-
-        .label {
-            font-size: 10px;
-            color: #777;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        .val-header {
-            font-size: 17px;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 12px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .val-ip {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 18px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .val-normal {
-            font-size: 16px;
-            color: #eee;
-            margin-bottom: 15px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #333;
-            margin-top: 40px;
-        }
-
-        .actions-bar {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            border-top: 1px solid #1a1a1a;
-            padding-top: 20px;
-            margin-top: 30px;
-        }
-
-        #logout-btn,
-        #change-pass-btn {
-            background: transparent;
-            color: #444;
-            border: none;
-            font-size: 9px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
+        #app-screen { display: none; max-width: 480px; margin: 0 auto; }
+        header { text-align: center; padding: 10px 0; }
+        header img { width: 260px; margin-bottom: 5px; } 
+        header h1 { font-size: 1.1rem; letter-spacing: 4px; color: var(--purple); margin: 5px 0 15px; text-transform: uppercase; font-weight: 600; }
+        hr { border: 0; border-top: 1px solid #1f1f24; margin-bottom: 25px; }
+        .search-area { position: sticky; top: 0; z-index: 100; padding: 10px 0; background: var(--bg); }
+        .result-card { background: var(--card); border-radius: 16px; padding: 25px; margin-bottom: 20px; border-left: 4px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .label { font-size: 10px; color: #777; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin-bottom: 6px; display: block; }
+        .val-header { font-size: 17px; font-weight: 600; color: #fff; margin-bottom: 12px; font-family: 'Courier New', monospace; }
+        .val-ip { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 18px; font-family: 'Courier New', monospace; }
+        .val-normal { font-size: 16px; color: #eee; margin-bottom: 15px; font-family: 'Courier New', monospace; }
+        .empty-state { text-align: center; color: #333; margin-top: 40px; }
+        .actions-bar { display: flex; justify-content: center; gap: 20px; border-top: 1px solid #1a1a1a; padding-top: 20px; margin-top: 30px; }
+        #logout-btn, #change-pass-btn { background: transparent; color: #444; border: none; font-size: 9px; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px; }
 
         /* --- TABS --- */
-        .nav-tabs {
-            display: flex;
-            background: #1a1a1a;
-            border-radius: 14px;
-            margin: 10px 0 20px;
-            padding: 4px;
-            gap: 4px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 14px;
-            text-align: center;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            color: #666;
-            transition: 0.3s;
-            letter-spacing: 1px;
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
-        }
-
-        .tab-btn:hover:not(.active) {
-            color: #aaa;
-            background: #222;
-        }
+        .nav-tabs { display: flex; background: #1a1a1a; border-radius: 14px; margin: 10px 0 20px; padding: 4px; gap: 4px; }
+        .tab-btn { flex: 1; padding: 14px; text-align: center; border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; color: #666; transition: 0.3s; letter-spacing: 1px; }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3); }
+        .tab-btn:hover:not(.active) { color: #aaa; background: #222; }
 
         /* --- PP SEARCH --- */
-        #pp-inputs {
-            display: none;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        #pp-inputs input {
-            flex: 1;
-            text-align: center;
-            margin: 0;
-        }
+        #pp-inputs { display: none; gap: 10px; margin-bottom: 20px; }
+        #pp-inputs input { flex: 1; text-align: center; margin: 0; }
     </style>
 </head>
-
 <body>
     <!-- LOGIN SCREEN -->
     <div id="login-screen">
         <div class="login-card">
-            <!-- LOGO CON URL COMPLETA DE GITHUB -->
             <img src="https://llmattioli.github.io/buscador-cimac/logo.png" alt="Logo">
             <input type="text" id="email" placeholder="Usuario">
             <input type="password" id="password" placeholder="Contraseña" onkeypress="handleEnter(event)">
@@ -293,18 +63,15 @@
                 INGRESAR AL SISTEMA
                 <div id="login-spinner" class="spinner"></div>
             </button>
-            <div id="error-msg" style="color:#ff7675; margin-top:15px; display:none; font-size:13px;">Credenciales
-                incorrectas</div>
+            <div id="error-msg" style="color:#ff7675; margin-top:15px; display:none; font-size:13px;">Credenciales incorrectas</div>
         </div>
     </div>
 
     <!-- MAIN APP SCREEN -->
     <div id="app-screen">
-        <header><img src="https://llmattioli.github.io/buscador-cimac/logo.png" alt="Logo">
-            <h1>BUSCADOR CIMAC</h1>
-        </header>
+        <header><img src="https://llmattioli.github.io/buscador-cimac/logo.png" alt="Logo"><h1>BUSCADOR CIMAC</h1></header>
         <hr>
-
+        
         <div class="nav-tabs">
             <div id="tab-sw" class="tab-btn active" onclick="setMode('sw')">RED / EQUIPOS</div>
             <div id="tab-pp" class="tab-btn" onclick="setMode('pp')">PATCH PANELS</div>
@@ -317,10 +84,8 @@
                 <input type="number" id="portNum" placeholder="N° Puerto" oninput="filterData()">
             </div>
         </div>
-        <div id="results">
-            <div class="empty-state">Ingresa término para buscar</div>
-        </div>
-
+        <div id="results"><div class="empty-state">Ingresa término para buscar</div></div>
+        
         <div class="actions-bar">
             <button id="change-pass-btn" onclick="openPassModal()">Cambiar Clave</button>
             <button id="logout-btn" onclick="logout()">Cerrar Sesión</button>
@@ -346,74 +111,54 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbxHzTfBLPL4p9CKl-TfNYRibayPQBgaBW0N9ApUCn5UTGyMjwNApkYvLeklfjVONF8e/exec";
         let inventoryData = [];
         let ppData = [];
-        let currentMode = 'sw'; // 'sw' o 'pp'
+        let currentMode = 'sw'; 
         let currentUserEmail = "";
 
         function handleEnter(e) { if (e.key === "Enter") handleLogin(); }
 
-        window.onload = () => {
+        window.onload = () => { 
             const session = localStorage.getItem('cimac_session_active');
             if (session) {
                 currentUserEmail = localStorage.getItem('cimac_user_email');
-
-                // Detectar si viene desde un QR específico para PP
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('view') === 'pp') currentMode = 'pp';
-
                 showApp();
             }
         };
 
-        async function fetchData() {
+        async function handleLogin() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            if (!email || !password) return;
+            const btn = document.getElementById('login-submit');
+            const spinner = document.getElementById('login-spinner');
+            btn.disabled = true; spinner.style.display = 'block';
             try {
-                console.log("Iniciando carga de datos...");
-
-                // Hacemos las peticiones una por una para no saturar
-                const respSW = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getData" }) });
-                if (!respSW.ok) throw new Error("Error en petición SW: " + respSW.status);
-                const resultSW = await respSW.json();
-
-                const respPP = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getPPData" }) });
-                if (!respPP.ok) throw new Error("Error en petición PP: " + respPP.status);
-                const resultPP = await respPP.json();
-
-                console.log("Datos SW:", resultSW);
-                console.log("Datos PP:", resultPP);
-
-                inventoryData = resultSW.data || [];
-                ppData = resultPP.data || [];
-
-            } catch (e) {
-                console.error("Error detallado:", e);
-                // ESTA PARTE ES CLAVE: Intentamos ver qué respondió Google realmente
-                const respText = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getData" }) }).then(r => r.text());
-                console.log("Respuesta real del servidor (Texto):", respText);
-
-                alert("Error de conexión. Mira la consola para ver qué dice Google.");
-            }
+                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "login", email, password }) });
+                const res = await resp.json();
+                if (res.status === "success") { 
+                    localStorage.setItem('cimac_session_active', 'true'); 
+                    localStorage.setItem('cimac_user_email', email);
+                    currentUserEmail = email;
+                    showApp(); 
+                } else {
+                    document.getElementById('error-msg').style.display = 'block';
+                    btn.disabled = false; spinner.style.display = 'none';
+                }
+            } catch (e) { alert("Error de conexión"); btn.disabled = false; spinner.style.display = 'none'; }
         }
 
-        function openPassModal() { document.getElementById('modal-overlay').style.display = 'flex'; }
-        function closePassModal() { document.getElementById('modal-overlay').style.display = 'none'; }
-
-        async function handlePassChange() {
-            const newP = document.getElementById('newPass').value;
-            const confP = document.getElementById('confirmPass').value;
-            if (!newP || newP !== confP) { alert("Claves no coinciden"); return; }
-
-            const btn = document.getElementById('save-pass-btn');
-            const spinner = document.getElementById('pass-spinner');
-            btn.disabled = true; spinner.style.display = 'block';
-
+        async function fetchData() {
             try {
-                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "changePassword", email: currentUserEmail, newPassword: newP }) });
-                const res = await resp.json();
-                if (res.status === "success") {
-                    alert("✅ Contraseña cambiada con éxito.");
-                    closePassModal();
-                } else { alert("Error: " + res.message); }
-            } catch (e) { alert("Error de comunicación"); }
-            finally { btn.disabled = false; spinner.style.display = 'none'; }
+                // Secuencial para evitar errores de red concurrentes en Apps Script
+                const respSW = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getData" }) });
+                const resSW = await respSW.json();
+                inventoryData = resSW.data || [];
+
+                const respPP = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getPPData" }) });
+                const resPP = await respPP.json();
+                ppData = resPP.data || [];
+            } catch (e) { console.error("Error cargando datos:", e); }
         }
 
         function showApp() {
@@ -445,66 +190,6 @@
             document.getElementById('tab-pp').className = currentMode === 'pp' ? 'tab-btn active' : 'tab-btn';
         }
 
-        async function fetchData() {
-            try {
-                // Obtenemos ambos sets de datos
-                const [respSW, respPP] = await Promise.all([
-                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getData" }) }),
-                    fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "getPPData" }) })
-                ]);
-
-                const resultSW = await respSW.json();
-                const resultPP = await respPP.json();
-
-                inventoryData = resultSW.data || [];
-                ppData = resultPP.data || [];
-            } catch (e) { console.error("Error cargando datos:", e); }
-        }
-
-        function renderResults(data) {
-            const container = document.getElementById('results');
-            if (data.length === 0) {
-                // Solo mostrar "Sin resultados" si el usuario escribió algo
-                const isSearching = currentMode === 'sw' ?
-                    document.getElementById('searchInput').value.trim() !== "" :
-                    (document.getElementById('ppNum').value !== "" && document.getElementById('portNum').value !== "");
-
-                container.innerHTML = '<div class="empty-state">' + (isSearching ? 'Sin resultados...' : 'Ingresa término para buscar') + '</div>';
-                return;
-            }
-            container.innerHTML = "";
-            data.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'result-card';
-
-                if (currentMode === 'sw') {
-                    let sw = "-", pp = "-";
-                    for (let k in item) {
-                        if (k.toLowerCase().includes("sw")) sw = item[k];
-                        if (k.toLowerCase().includes("pp")) pp = item[k];
-                    }
-                    card.innerHTML = `
-                        <div class="field"><span class="label">USUARIO / EQUIPO</span><div class="val-header">${item.usuario || '-'} / ${item.puesto || '-'}</div></div>
-                        <div class="field"><span class="label">DIRECCIÓN IP</span><div class="val-ip">${item.ip || '-'}</div></div>
-                        <div class="field"><span class="label">SWITCH/PP PORT</span><div class="val-normal">${String(sw)} / ${String(pp)}</div></div>
-                        <div class="field"><span class="label">DIRECCIÓN MAC</span><div class="val-normal">${item.mac || '-'}</div></div>
-                    `;
-                } else {
-                    // Lógica para PP: Concatenar 3 celdas a la derecha de la primera
-                    const vals = Object.values(item);
-                    // vals[0] es el ID (PP01_01). vals[1], vals[2], vals[3] son las 3 celdas a la derecha
-                    const concat = [vals[1], vals[2], vals[3]].filter(v => v !== undefined && v !== "").join(" / ");
-
-                    card.style.borderLeftColor = "var(--accent)";
-                    card.innerHTML = `
-                        <div class="field"><span class="label">IDENTIFICADOR</span><div class="val-header">${vals[0]}</div></div>
-                        <div class="field"><span class="label">DETALLE PUERTO (3 CELDAS)</span><div class="val-ip" style="font-size:16px;">${concat || 'Sin datos adicionales'}</div></div>
-                    `;
-                }
-                container.appendChild(card);
-            });
-        }
-
         function filterData() {
             if (currentMode === 'sw') {
                 const term = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -514,12 +199,9 @@
             } else {
                 const ppRaw = document.getElementById('ppNum').value;
                 const portRaw = document.getElementById('portNum').value;
-
                 if (!ppRaw || !portRaw) { renderResults([]); return; }
-
                 const pad = (n) => String(n).padStart(2, '0');
                 const searchID = `PP${pad(ppRaw)}_${pad(portRaw)}`;
-
                 const found = ppData.find(item => {
                     const firstKey = Object.keys(item)[0];
                     return String(item[firstKey]).trim().toUpperCase() === searchID.toUpperCase();
@@ -528,8 +210,59 @@
             }
         }
 
-        function logout() { localStorage.removeItem('cimac_session_active'); localStorage.removeItem('cimac_user_email'); location.reload(); }
+        function renderResults(data) {
+            const container = document.getElementById('results');
+            if (data.length === 0) { 
+                const isSearching = currentMode === 'sw' ? 
+                    document.getElementById('searchInput').value.trim() !== "" :
+                    (document.getElementById('ppNum').value !== "" && document.getElementById('portNum').value !== "");
+                container.innerHTML = `<div class="empty-state">${isSearching ? 'Sin resultados...' : 'Ingresa término para buscar'}</div>`;
+                return; 
+            }
+            container.innerHTML = "";
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                if (currentMode === 'sw') {
+                    let sw = item.sw || item.switch || "-", pp = item.pp || item.patch_panel || "-";
+                    card.innerHTML = `
+                        <div class="field"><span class="label">EQUIPO</span><div class="val-header">${item.usuario || '-'} / ${item.puesto || '-'}</div></div>
+                        <div class="field"><span class="label">DIRECCIÓN IP / MAC</span><div class="val-ip">${item.ip || '-'}</div><div style="font-size:12px;color:#888">${item.mac || '-'}</div></div>
+                        <div class="field"><span class="label">CONEXIÓN</span><div class="val-normal">SW: ${sw} | PP: ${pp}</div></div>
+                    `;
+                } else {
+                    const vals = Object.values(item);
+                    const concat = [vals[1], vals[2], vals[3]].filter(v => v).join(" / ");
+                    card.style.borderLeftColor = "var(--accent)";
+                    card.innerHTML = `
+                        <div class="field"><span class="label">IDENTIFICADOR</span><div class="val-header">${vals[0]}</div></div>
+                        <div class="field"><span class="label">DETALLE PUERTO</span><div class="val-ip" style="font-size:16px;">${concat || 'Sin datos'}</div></div>
+                    `;
+                }
+                container.appendChild(card);
+            });
+        }
+
+        function openPassModal() { document.getElementById('modal-overlay').style.display = 'flex'; }
+        function closePassModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+        
+        async function handlePassChange() {
+            const newP = document.getElementById('newPass').value;
+            const confP = document.getElementById('confirmPass').value;
+            if (!newP || newP !== confP) { alert("Claves no coinciden"); return; }
+            const btn = document.getElementById('save-pass-btn');
+            const spinner = document.getElementById('pass-spinner');
+            btn.disabled = true; spinner.style.display = 'block';
+            try {
+                const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: "changePassword", email: currentUserEmail, newPassword: newP }) });
+                const res = await resp.json();
+                if (res.status === "success") { alert("✅ Contraseña cambiada."); closePassModal(); } 
+                else { alert("Error: " + res.message); }
+            } catch (e) { alert("Error de comunicación"); }
+            finally { btn.disabled = false; spinner.style.display = 'none'; }
+        }
+
+        function logout() { localStorage.removeItem('cimac_session_active'); location.reload(); }
     </script>
 </body>
-
 </html>
